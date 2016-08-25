@@ -62,7 +62,7 @@ function random(min, max) {
 function Grid(rows, cols, positions) {
 	const colBorder = "|";
 	const rowBorder = "-";
-	const fill = "X";
+	const fill = "\u2588";
 	const empty = " ";
 	const matrix = range(rows).map(_ => Array.from(new Array(cols), _ => empty))
 	const coords = range(0, rows).map(i => range(0, cols).map(j => [i, j])).reduce((a, b) => a.concat(b));
