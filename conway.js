@@ -115,7 +115,7 @@ function Grid(rows, cols, positions) {
 		return coords.filter(([i, j]) => nc[i][j] <= 1);
 	}
 
-	function stuffed(nc) {
+	function packed(nc) {
 		return coords.filter(([i, j]) => nc[i][j] >= 4);
 	}
 
@@ -130,7 +130,7 @@ function Grid(rows, cols, positions) {
 	return {
 		evolve() {
 			const nc = neighborCount();
-			const toKill = new Set(lonely(nc).concat(stuffed(nc)).map(c2s));
+			const toKill = new Set(lonely(nc).concat(packed(nc)).map(c2s));
 			const toCreate = expected(nc);
 			let newCoords = coords.filter(([i, j]) => !toKill.has(c2s([i, j])) && isFull(i, j)).concat(toCreate);
 			return Grid(rows, cols, newCoords);
