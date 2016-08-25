@@ -128,9 +128,6 @@ function Grid(rows, cols, positions) {
 	}
 
 	return {
-		neighborCount,
-		neighbors,
-		cells,
 		evolve() {
 			const nc = neighborCount();
 			const toKill = new Set(lonely(nc).concat(stuffed(nc)).map(c2s));
@@ -138,9 +135,7 @@ function Grid(rows, cols, positions) {
 			let newCoords = coords.filter(([i, j]) => !toKill.has(c2s([i, j])) && isFull(i, j)).concat(toCreate);
 			return Grid(rows, cols, newCoords);
 		},
-		print() {
-			console.log(show());
-		}
+		show
 	}
 }
 
@@ -152,6 +147,7 @@ function evolve(grid) {
 	});
 } 
 
-const rows = 6;
-const cols = 6;
-var grid = Grid(rows, cols, [[1, 1], [1, 2], [2, 1], [2, 2], [3, 3], [3, 4], [4, 3], [4, 4]]);
+window.Grid = Grid;
+// const rows = 6;
+// const cols = 6;
+// var grid = Grid(rows, cols, [[1, 1], [1, 2], [2, 1], [2, 2], [3, 3], [3, 4], [4, 3], [4, 4]]);
