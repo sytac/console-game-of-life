@@ -67,6 +67,7 @@ function Grid(rows, cols, positions) {
 		})	
 		copy.push(rowBordering);
 		copy.unshift(rowBordering);
+		copy.push("                  We are hiring!!!                  ".split(""));
 		return copy;
 	}
 
