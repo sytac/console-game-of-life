@@ -11,13 +11,45 @@ For a space that is 'empty' or 'unpopulated'
 
 */
 
+function range(...args) {
+	let start;
+	let end;
+	let step;
 
-function range(n) {
+	if (args.length == 1) {
+		start = 0;
+		end = args[0];
+		step = 1;
+	} else if (args.length == 2) {
+		start = args[0];
+		end = args[1];
+		step = 1;
+	} else {
+		start = args[0];
+		end = args[1];
+		step = args[2] || 1;
+	}
+
 	let ret = [];
-	for (let i = 0; i < n; i += 1) {
+	for (let i = start; i < end; i += step) {
 		ret.push(i);
 	}
 	return ret;
+}
+
+function centerPad(str, len, char=" ") {
+	const rem = len - str.length;
+	const left = Math.floor(rem / 2);
+	const right = rem - left;
+	return Array.from(new Array(left), _ => char).concat(Array.from(str)).concat(Array.from(new Array(right), _ => char));
+}
+
+function rangeIn(...args) {
+	if (args.length > 1) {
+		return range(args[0], args[1] + 1, args[2]);
+	} else {
+		return range(args[0] + 1);
+	}
 }
 
 function random(min, max) {
@@ -28,82 +60,41 @@ function random(min, max) {
 
 
 function Grid(rows, cols, positions) {
-	let matrix = [];
-	const rr = range(rows);
-	const rc = range(cols);
 	const colBorder = "|";
 	const rowBorder = "-";
 	const fill = "X";
 	const empty = " ";
-	const coords = [];
+	const matrix = range(rows).map(_ => Array.from(new Array(cols), _ => empty))
+	const coords = range(0, rows).map(i => range(0, cols).map(j => [i, j])).reduce((a, b) => a.concat(b));
 
-	initialize();
-
-	function initialize() {
-		for (let i = 0; i < rows; i += 1) {
-			let internal = [];
-			for (let j = 0; j < cols; j += 1) {
-				coords.push([i, j]);
-				internal.push(empty);
-			}
-			matrix.push(internal);
-		}
-		for (let [i, j] of positions) matrix[i][j] = fill;
-	}
-
-	function show() {
-		return bordered().map(_ => _.join("")).join("\n");
-	}
+	for (let [i, j] of positions) matrix[i][j] = fill;
 
 	function bordered() {
 		const copy = matrix.slice();
-		const rowBordering = [" "].concat(rc.map(_ => rowBorder)).concat([" "]);
+		const rowBordering = [" "].concat(range(cols).map(_ => rowBorder)).concat([" "]);
 		
-		rr.map(i => {
+		range(rows).map(i => {
 			let col = matrix[i].slice();
 			col.push(colBorder);
 			col.unshift(colBorder);
 			copy[i] = col;
-		})	
+		});
 		copy.push(rowBordering);
 		copy.unshift(rowBordering);
-		copy.push("                  We are hiring!!!                  ".split(""));
+		copy.push(centerPad("We are hiring!", cols + 2))
+		copy.push(centerPad('www.sytac.nl/vacatures/', cols + 2));
+		copy.push(centerPad("", cols + 2));
+		copy.push(centerPad("Please use Firefox if you are experiencing glitches", cols + 2));
+		copy.push(centerPad("", cols + 2));
 		return copy;
 	}
 
-	function inBounds(i, j) {
-		return i >= 0 && i < rows && j >= 0 && j < cols
-	}
-
 	function neighbors(row, col) {
-		const ret = [];
-		for (let i = row - 1; i <= row + 1; i += 1) {
-			for (let j = col - 1; j <= col + 1; j += 1) {
-				if (inBounds(i, j) && (i !== row || j !== col)) {
-					ret.push([i, j]);
-				}
-			}
-		}
-		return ret;
-	}
-
-	function isFull(i, j) {
-		return matrix[i][j] === fill;
-	}
-
-	function isEmpty(i, j) {
-		return !isFull(i, j);
-	}
-
-	function cells() {
-		return coords.reduce((acc, [i, j]) => {
-			if (isFull(i, j)) acc.push([i, j]);
-			return acc;
-		}, []);
-	}
-
-	function mapCell(fn) {
-		return cells().map(fn);
+		return (
+			rangeIn(row - 1, row + 1).map(i => 
+				rangeIn(col - 1, col + 1).map(j => [i, j]))
+			.reduce((a, b) => a.concat(b))
+			.filter(([i, j]) => inBounds(i, j) && (i !== row || j !== col)));
 	}
 
 	function neighborCount() {
@@ -112,21 +103,25 @@ function Grid(rows, cols, positions) {
 		return copy;
 	}
 
-	function lonely(nc) {
-		return coords.filter(([i, j]) => nc[i][j] <= 1);
-	}
+	function show() { return bordered().map(_ => _.join("")).join("\n");}
 
-	function packed(nc) {
-		return coords.filter(([i, j]) => nc[i][j] >= 4);
-	}
+	function inBounds(i, j) { return i >= 0 && i < rows && j >= 0 && j < cols; }
 
-	function expected(nc) {
-		return coords.filter(([i, j]) => nc[i][j] === 3);
-	}
+	function isFull(i, j) { return matrix[i][j] === fill; }
 
-	function c2s([i, j]) {
-		return `${i},${j}`;
-	}
+	function isEmpty(i, j) { return !isFull(i, j);}
+
+	function cells() { return coords.filter(([i, j]) => isFull(i, j));}
+
+	function mapCell(fn) { return cells().map(fn);}
+
+	function lonely(nc) { return coords.filter(([i, j]) => nc[i][j] <= 1);}
+
+	function packed(nc) { return coords.filter(([i, j]) => nc[i][j] >= 4);}
+
+	function expected(nc) { return coords.filter(([i, j]) => nc[i][j] === 3);}
+
+	function c2s([i, j]) { return i + "," + j;}
 
 	return {
 		evolve() {
