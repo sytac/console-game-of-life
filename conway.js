@@ -82,7 +82,7 @@ function Grid(rows, cols, positions) {
 		copy.push(rowBordering);
 		copy.unshift(rowBordering);
 		copy.push(centerPad("We are hiring!", cols + 2))
-		copy.push(centerPad('www.sytac.nl/vacatures/', cols + 2));
+		copy.push(centerPad('http://www.sytac.nl/vacatures/', cols + 2));
 		copy.push(centerPad("", cols + 2));
 		copy.push(centerPad("Please use Firefox if you are experiencing glitches", cols + 2));
 		copy.push(centerPad("", cols + 2));
